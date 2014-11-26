@@ -13,7 +13,7 @@ namespace Janus
             var swapChainFactory = new JanusDesktop.Graphics.DesktopSwapChainFactory();
             swapChainFactory.Show();
 
-            var app = new JanusEngine.Application(swapChainFactory);
+            var app = new JanusEngine.Application(swapChainFactory, swapChainFactory);
             app.Run();
         }
     }

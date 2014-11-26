@@ -15,11 +15,10 @@ namespace JanusEngine.Graphics
 {
     public class GraphicsDevice
     {
-        public SharpDX.Direct3D11.Device1 Device { get; private set; }
-        public DeviceContext1 ImmediateContext { get; private set; }
+        public SharpDX.Direct3D11.Device Device { get; private set; }
+        public DeviceContext ImmediateContext { get; private set; }
 
         private ISwapchainFactory m_swapChainFactory;
-
 
         private SwapChain1 m_swapChain;
         private RenderTargetView m_renderTargetView;
@@ -31,26 +30,21 @@ namespace JanusEngine.Graphics
             m_swapChainFactory = swapchainFactory;
 
             DeviceCreationFlags flags = DeviceCreationFlags.BgraSupport;
-
+#if DEBUG
             flags |= DeviceCreationFlags.Debug;
-
+#endif
             FeatureLevel[] featureLevels =
             {
-                FeatureLevel.Level_11_1,
                 FeatureLevel.Level_11_0,
                 FeatureLevel.Level_10_1,
                 FeatureLevel.Level_10_0
             };
 
-            var device = new SharpDX.Direct3D11.Device(DriverType.Hardware, flags, featureLevels);
+            Device = new SharpDX.Direct3D11.Device(DriverType.Hardware, flags, featureLevels);
 
-            Device = ComObject.As<SharpDX.Direct3D11.Device1>(device);
-            Logger.Log.Info(string.Format("Created device with feature level: {0}", device.FeatureLevel));
+            Logger.Log.Info(string.Format("Created device with feature level: {0}", Device.FeatureLevel));
 
-            ImmediateContext = Device.ImmediateContext1;
-
-            m_swapChainFactory.Resized += SwapchainFactory_Resized;
-            m_swapChainFactory.Resizing += SwapChainFactory_Resizing;
+            ImmediateContext = Device.ImmediateContext;
 
             Reset();
         }
@@ -67,17 +61,16 @@ namespace JanusEngine.Graphics
             {
                 var desc = new SwapChainDescription1
                 {
-                    AlphaMode = AlphaMode.Premultiplied,
                     BufferCount = 2,
                     Flags = SwapChainFlags.AllowModeSwitch,
                     Format = Format.B8G8R8A8_UNorm,
                     SampleDescription = new SampleDescription(1, 0),
                     Stereo = false,
                     SwapEffect = SwapEffect.FlipSequential,
-                    Usage = Usage.BackBuffer,
+                    Usage = Usage.BackBuffer | Usage.RenderTargetOutput
                 };
 
-                var dxgiDevice = ComObject.As<SharpDX.DXGI.Device1>(Device);
+                var dxgiDevice = Device.QueryInterface<SharpDX.DXGI.Device2>();
                 m_swapChain = m_swapChainFactory.CreateSwapChain(dxgiDevice, desc);
             }
 
@@ -105,22 +98,11 @@ namespace JanusEngine.Graphics
             ImmediateContext.OutputMerger.SetRenderTargets(m_renderTargetView);
         }
             
-
         private void DestroySwapChainDependentResources()
         {
             m_renderTargetView = null;
             m_depthStencilView = null;
             m_depthStencilBuffer = null;
-        }
-
-        private void SwapChainFactory_Resizing()
-        {
-            DestroySwapChainDependentResources();
-        }
-
-        private void SwapchainFactory_Resized()
-        {
-            CreateOrResizeSwapChainDependentResources();
         }
 
         public void Clear()
@@ -133,6 +115,7 @@ namespace JanusEngine.Graphics
 
         public void Present()
         {
+            ImmediateContext.OutputMerger.ResetTargets();
             m_swapChain.Present(1, PresentFlags.None);
         }
     }
