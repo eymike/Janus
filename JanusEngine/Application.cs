@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 
+using JanusEngine.Content;
 using JanusEngine.Graphics;
 
 namespace JanusEngine
@@ -7,7 +8,7 @@ namespace JanusEngine
     public class Application
     {
         object m_resetLock = new object();
-        public GraphicsDevice GraphicsDevice { get; private set; }
+        public ServiceProvider m_services = new ServiceProvider();
 
         private IOSMessageLoop m_messageLoop;
 
@@ -17,9 +18,14 @@ namespace JanusEngine
         bool m_renderloopExiting = false;
         bool m_exiting = false;
 
-        public Application(ISwapchainFactory swapChainFactory, IOSMessageLoop messageLoop)
+        public Application(
+            ISwapchainFactory swapChainFactory,
+            IOSMessageLoop messageLoop,
+            IFileSystem fileSystem)
         {
-            GraphicsDevice = new GraphicsDevice(swapChainFactory);
+            m_services.Add(new GraphicsDevice(swapChainFactory));
+            m_services.Add(new ContentManager(fileSystem, m_services));
+
             m_messageLoop = messageLoop;
 
             swapChainFactory.Resizing += OnResizing;
@@ -31,7 +37,8 @@ namespace JanusEngine
             m_renderloopExiting = true;
             lock (m_resetLock)
             {
-                GraphicsDevice.Reset();
+                var device = (GraphicsDevice)m_services.GetService(typeof(GraphicsDevice));
+                device.Reset();
             }
         }
 
@@ -62,13 +69,14 @@ namespace JanusEngine
 
         private void RenderLoop()
         {
+            var device = (GraphicsDevice)m_services.GetService(typeof(GraphicsDevice));
             lock (m_resetLock)
             {
                 while (!m_renderloopExiting)
                 {
-                    GraphicsDevice.Clear();
+                    device.Clear();
 
-                    GraphicsDevice.Present();
+                    device.Present();
                 }
             }
         }

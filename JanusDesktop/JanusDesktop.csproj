@@ -55,6 +55,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Content\DesktopAssetMonitor.cs" />
+    <Compile Include="Content\DesktopFileSystem.cs" />
     <Compile Include="Graphics\DesktopSwapChainFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

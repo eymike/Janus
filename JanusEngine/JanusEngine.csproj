@@ -37,11 +37,17 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Application.cs" />
+    <Compile Include="Content\IAssetMonitor.cs" />
+    <Compile Include="Content\ContentManager.cs" />
+    <Compile Include="Content\IFileSystem.cs" />
+    <Compile Include="Content\ShaderLoaders.cs" />
     <Compile Include="Graphics\Geometry\Mesh.cs" />
     <Compile Include="Graphics\GraphicsDevice.cs" />
     <Compile Include="Graphics\ISwapchainFactory.cs" />
+    <Compile Include="Graphics\Shaders.cs" />
     <Compile Include="IOSMessageLoop.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ServiceProvider.cs" />
     <Compile Include="Trace\JanusLogSource.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -59,7 +65,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Content\" />
+    <Folder Include="Render\" />
   </ItemGroup>
   <PropertyGroup>
     <SharpDXDirectXVersion>DirectX11_2</SharpDXDirectXVersion>

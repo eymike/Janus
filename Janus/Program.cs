@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
+using JanusDesktop.Content;
+
 namespace Janus
 {
     class Program
@@ -13,7 +15,11 @@ namespace Janus
             var swapChainFactory = new JanusDesktop.Graphics.DesktopSwapChainFactory();
             swapChainFactory.Show();
 
-            var app = new JanusEngine.Application(swapChainFactory, swapChainFactory);
+            var app = new JanusEngine.Application(
+                swapChainFactory, 
+                swapChainFactory,
+                new DesktopFileSystem());
+
             app.Run();
         }
     }
